@@ -16,9 +16,17 @@ class QueryResponse(BaseModel):
 
 def get_db_conn():
     db_url = os.getenv('DATABASE_URL', '')
+    import urllib.parse
+    p = urllib.parse.urlparse(db_url)
     import pg8000.dbapi
-    return pg8000.dbapi.connect(db_url, ssl_context=True)
-
+    return pg8000.dbapi.connect(
+        host=p.hostname,
+        port=p.port or 5432,
+        user=p.username,
+        password=p.password,
+        database=p.path.lstrip('/'),
+        ssl_context=True
+    )
 def query_count(sql):
     conn = get_db_conn()
     cur = conn.cursor()
