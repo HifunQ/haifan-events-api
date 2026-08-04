@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import Optional, Any
 import os
 
-app = FastAPI(title="嗨番事件库 API", version="1.2.4")
+app = FastAPI(title="嗨番事件库 API", version="1.2.5")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 class QueryResponse(BaseModel):
@@ -16,9 +16,8 @@ class QueryResponse(BaseModel):
 
 def get_db_conn():
     db_url = os.getenv('DATABASE_URL', '')
-    import psycopg2, urllib.parse
-    p = urllib.parse.urlparse(db_url)
-    return psycopg2.connect(host=p.hostname, port=p.port or 5432, user=p.username, password=p.password, dbname=p.path.lstrip('/'), sslmode='require')
+    import psycopg
+    return psycopg.connect(db_url, sslmode='require')
 
 def query_count(sql):
     conn = get_db_conn()
@@ -38,7 +37,7 @@ def query_rows(sql, params=None):
     return rows
 
 @app.get("/")
-def root(): return {"name": "嗨番事件库 API", "version": "1.2.4"}
+def root(): return {"name": "嗨番事件库 API", "version": "1.2.5"}
 
 @app.get("/health")
 def health(): return {"status": "ok"}
